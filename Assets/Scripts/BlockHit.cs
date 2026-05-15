@@ -6,6 +6,7 @@ public class BlockHit : MonoBehaviour
     public GameObject item;
     public Sprite emptyBlock;
     public int maxHits = -1;
+
     private bool animating;
 
     private void OnCollisionEnter2D(Collision2D collision)
@@ -13,21 +14,30 @@ public class BlockHit : MonoBehaviour
         if (!animating && maxHits != 0 && collision.gameObject.CompareTag("Player"))
         {
             if (collision.transform.DotTest(transform, Vector2.up)) {
-                Hit();
+                Hit(collision.gameObject.GetComponent<Player>());
             }
         }
     }
 
-    private void Hit()
+    private void Hit(Player player)
     {
         SpriteRenderer spriteRenderer = GetComponent<SpriteRenderer>();
-        spriteRenderer.enabled = true; // show if hidden
+        spriteRenderer.enabled = true; // mostrar si estaba oculto
 
         maxHits--;
 
         if (maxHits == 0) {
             spriteRenderer.sprite = emptyBlock;
         }
+
+        // NUEVO - sumar score
+        if (GameHUD.Instance != null)
+        {
+            GameHUD.Instance.AddScore(50);
+        }
+
+        // futuro sonido de bloque
+        // player.soundController.PlayBlockHitSound();
 
         if (item != null) {
             Instantiate(item, transform.position, Quaternion.identity);

@@ -12,9 +12,12 @@ public class GameManager : MonoBehaviour
 
     private void Awake()
     {
-        if (Instance != null) {
+        if (Instance != null)
+        {
             DestroyImmediate(gameObject);
-        } else {
+        }
+        else
+        {
             Instance = this;
             DontDestroyOnLoad(gameObject);
         }
@@ -22,7 +25,8 @@ public class GameManager : MonoBehaviour
 
     private void OnDestroy()
     {
-        if (Instance == this) {
+        if (Instance == this)
+        {
             Instance = null;
         }
     }
@@ -31,9 +35,12 @@ public class GameManager : MonoBehaviour
     {
         Application.targetFrameRate = 60;
 
-        NewGame();
+        // IMPORTANTE:
+        // Ya NO iniciamos automáticamente el juego
+        // porque ahora existe MainMenu
     }
 
+    // INICIAR NUEVA PARTIDA
     public void NewGame()
     {
         lives = 3;
@@ -42,57 +49,94 @@ public class GameManager : MonoBehaviour
         LoadLevel(1, 1);
     }
 
+    // GAME OVER
     public void GameOver()
     {
-        // TODO: show game over screen
+        // futuro: pantalla game over
 
-        NewGame();
+        SceneManager.LoadScene("MainMenu");
     }
 
+    // CARGAR NIVEL
     public void LoadLevel(int world, int stage)
     {
         this.world = world;
         this.stage = stage;
 
+        // primero mostrar pantalla de vidas
+        SceneManager.LoadScene("LifeScene");
+    }
+
+    // CARGAR NIVEL REAL
+    public void LoadCurrentLevel()
+    {
+        // música
+        if (MusicManager.Instance != null)
+        {
+            MusicManager.Instance.PlayMusic();
+        }
+
         SceneManager.LoadScene($"{world}-{stage}");
     }
 
+    // SIGUIENTE NIVEL
     public void NextLevel()
     {
         LoadLevel(world, stage + 1);
     }
 
+    // REINICIAR NIVEL
     public void ResetLevel(float delay)
     {
         CancelInvoke(nameof(ResetLevel));
+
+        // detener música
+        if (MusicManager.Instance != null)
+        {
+            MusicManager.Instance.StopMusic();
+        }
+
         Invoke(nameof(ResetLevel), delay);
     }
 
+    // REINICIO REAL
     public void ResetLevel()
     {
         lives--;
 
-        if (lives > 0) {
+        if (lives > 0)
+        {
             LoadLevel(world, stage);
-        } else {
+        }
+        else
+        {
             GameOver();
         }
     }
 
+    // MONEDAS
     public void AddCoin()
     {
         coins++;
 
-        if (coins == 100)
+        // actualizar HUD
+        if (GameHUD.Instance != null)
+        {
+            GameHUD.Instance.UpdateCoins();
+            GameHUD.Instance.AddScore(100);
+        }
+
+        // 100 monedas = vida extra
+        if (coins >= 100)
         {
             coins = 0;
             AddLife();
         }
     }
 
+    // VIDA EXTRA
     public void AddLife()
     {
         lives++;
     }
-
 }

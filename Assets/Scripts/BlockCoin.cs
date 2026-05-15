@@ -5,6 +5,14 @@ public class BlockCoin : MonoBehaviour
 {
     private void Start()
     {
+        // NUEVO - reproducir sonido moneda
+        Player player = FindObjectOfType<Player>();
+
+        if (player != null)
+        {
+            player.soundController.PlayCoinSound();
+        }
+
         GameManager.Instance.AddCoin();
 
         StartCoroutine(Animate());
